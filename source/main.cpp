@@ -22,6 +22,9 @@ using namespace std;
 #define BUF_SIZE 4096
 #define PORT 9040
 
+// The installer rejects overly long content names with ERROR_PARAM
+#define MAX_CONTENT_NAME_LEN 255
+
 typedef struct notify_request
 {
     char useless1[45];
@@ -293,23 +296,17 @@ int main(int argc, char *argv[])
             metainfo.playgo_scenario_id = "";
             metainfo.content_id = content_id_buf;
 
-            // Fall back to deriving the name from the URL if no name parameter
-            // was provided. The installer rejects overly long content names, so
-            // prefer the .pkg filename and otherwise cap at 255 chars.
             if (content_name[0] == 0)
             {
-                size_t url_len = strlen(url_base);
-                if (url_len >= 4 && strcasecmp(url_base + url_len - 4, ".pkg") == 0)
-                {
-                    char *slash = strrchr(url_base, '/');
-                    const char *src = (slash != nullptr) ? slash + 1 : url_base;
-                    strncpy(content_name, src, sizeof(content_name) - 1);
-                }
-                else
-                {
-                    strncpy(content_name, url_base, sizeof(content_name) - 1);
-                }
+                char *slash = strrchr(url_base, '/');
+                const char *src = (slash != nullptr && slash[1] != 0) ? slash + 1 : url_base;
+                strncpy(content_name, src, sizeof(content_name) - 1);
                 content_name[sizeof(content_name) - 1] = 0;
+            }
+
+            if (strlen(content_name) > MAX_CONTENT_NAME_LEN)
+            {
+                content_name[MAX_CONTENT_NAME_LEN] = 0;
             }
             metainfo.content_name = content_name;
             metainfo.icon_url = icon_url_buf;

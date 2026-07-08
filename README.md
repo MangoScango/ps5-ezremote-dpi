@@ -22,3 +22,10 @@ You can optionally provide metadata about the package being installed via URL pa
      ```bash
      echo 'https://example.org/game.pkg?content_id=UP0700-CUSA08692_00-DARKSOULSHD00000&name=Dark Souls Remastered&icon=/icons/UP0700-CUSA08692_00-DARKSOULSHD00000.png' | ncat PS5_IP 9040
      ```
+## CDN Manifest
+
+You can push split packages straight from the CDN if you have the manifest. Useful for redownloading content you already have a license to. Obviously, this requires unblocking the CDN in your DNS provider, so use with caution to avoid accidental updates.
+  - Example to, redownload Astro's Playroom:
+     ```bash
+     echo 'https://sgst.prod.dl.playstation.net/sgst/prod/00/PPSA01325_00/app/info/51/f_0339a29780d866561cc22382c5b9f1ad8bd19c0960f499c5b637f0d833879457/IP9100-PPSA01325_00-PREINMASTER00000.json' | ncat PS5_IP 9040
+     ```
