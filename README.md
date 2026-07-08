@@ -1,19 +1,24 @@
 # ps5-ezremote-dpi
 
-A payload that runs in the background to receive package install request similar to etaHEN DPI. Only supports http/https URLs. This is a standalone payload that doesn't need etaHEN or kstuff. This payload is auto started by [ezRemote Client homebrew](https://github.com/cy33hc/ps5-ezremote-client) if it's not loaded.
+A payload that runs in the background to receive package install request similar to etaHEN DPI. Only supports http/https URLs. This is a standalone payload that doesn't need etaHEN or kstuff. All it does is pass the URL to the pkg installer, and the native PS5 pkg download/install process does the rest. As a result, you are free to install packages in the background while playing a game or while in rest mode. Tested on 12.40, but should work up through 13.42.
 
 ## Instructions
- - Run the umtx exploit
- - Start the elfloader
+ - Run your favorite kernel exploit and start an elfloader
  - Send ezremote-dpi.elf to elfloader
  - Wait for the message "ezRemote DPI listening on port 9040" to appear
  - Send URL to install from Linux
    ```bash
    echo 'https://example.org/game.pkg' | nc PS5_IP 9040
    ```
- - Send URL to install from Windows
-   - Create a text file with the URL in content. Make sure there is no spaces before and after the URL.
-   - Then use etaHEN [send_payload.ps1](https://github.com/etaHEN/etaHEN/blob/main/send_payload.ps1) powershell script to send the URL to install
+ - On Windows use ncat instead
      ```bash
-     powershell send_payload.ps1 -Payload "C:\path\to\pkg.txt" -IP "192.168.xxx.xxx" -Port 9040
+     echo 'https://example.org/game.pkg' | ncat PS5_IP 9040
+     ```
+
+## Optional Metadata Parameters
+
+You can optionally provide metadata about the package being installed via URL parameters. This doesn't change anything functionally, but will allow the console UI to properly render the game information during install.
+  - Example:
+     ```bash
+     echo 'https://example.org/game.pkg?content_id=UP0700-CUSA08692_00-DARKSOULSHD00000&name=Dark Souls Remastered&icon=/icons/UP0700-CUSA08692_00-DARKSOULSHD00000.png' | ncat PS5_IP 9040
      ```
