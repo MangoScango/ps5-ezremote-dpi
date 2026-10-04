@@ -1,6 +1,6 @@
 # ps5-ezremote-dpi
 
-A payload that runs in the background to receive package install request similar to etaHEN DPI. Only supports http/https URLs. This is a standalone payload that doesn't need etaHEN or kstuff. All it does is pass the URL to the pkg installer, and the native PS5 pkg download/install process does the rest. As a result, you are free to install packages in the background while playing a game or while in rest mode. Tested on 12.40, but should work up through 13.42.
+A payload that runs in the background to receive package install request similar to etaHEN DPI. Only supports http/https URLs. This is a standalone payload that doesn't need etaHEN or kstuff. All it does is pass the URL to the pkg installer, and the native PS5 pkg download/install process does the rest. As a result, you are free to install packages in the background while playing a game or while in rest mode. Tested on 7.61, 12.40, and 13.60, but should work on any firmware.
 
 ## Instructions
  - Run your favorite kernel exploit and start an elfloader
