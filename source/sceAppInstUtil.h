@@ -80,6 +80,10 @@ typedef struct {
     const char* content_id;
     const char* content_name;
     const char* icon_url;
+    uint32_t slot;
+    // Persisted as PlayGo tag 0xf4309; while set, ShellCore refuses patches
+    // with 0x80B2116A even after the base is fully installed.
+    bool is_playgo_enabled;
 } MetaInfo;
 
 typedef struct {

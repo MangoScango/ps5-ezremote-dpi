@@ -251,6 +251,8 @@ int main(int argc, char *argv[])
             klog_printf("ezRemote DPI Received: %s\n", buffer);
 
             memset(&playgo_info, 0, sizeof(playgo_info));
+            memset(&pkg_info, 0, sizeof(pkg_info));
+            memset(&metainfo, 0, sizeof(metainfo));
 
             for (size_t i = 0; i < SCE_NUM_LANGUAGES; i++)
             {
@@ -310,6 +312,7 @@ int main(int argc, char *argv[])
             }
             metainfo.content_name = content_name;
             metainfo.icon_url = icon_url_buf;
+            metainfo.is_playgo_enabled = false;
 
             klog_printf("ezRemote DPI Installing: Name: %s, Content ID: %s\n",
                         content_name, content_id_buf[0] ? content_id_buf : "(none)");
