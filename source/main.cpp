@@ -278,6 +278,9 @@ int main(int argc, char *argv[])
             strncpy(url_base, buffer, sizeof(url_base) - 1);
             url_base[sizeof(url_base) - 1] = 0;
 
+            uint32_t slot = 0;
+            bool playgo_enabled = true;
+
             char *query = strchr(url_base, '?');
             if (query != nullptr)
             {
@@ -349,7 +352,13 @@ int main(int argc, char *argv[])
             }
             metainfo.content_name = content_name;
             metainfo.icon_url = icon_url_buf;
-            metainfo.is_playgo_enabled = false;
+            metainfo.slot = slot;
+            metainfo.is_playgo_enabled = playgo_enabled;
+
+            if (playgo_enabled)
+            {
+                klog_printf("ezRemote DPI: playgo=1 requested; patches for this app will be refused (0x80B2116A) until the PlayGo record is cleared\n");
+            }
 
             klog_printf("ezRemote DPI Installing: Name: %s, Content ID: %s\n",
                         content_name, content_id_buf[0] ? content_id_buf : "(none)");
