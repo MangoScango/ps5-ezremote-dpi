@@ -276,6 +276,9 @@ int main(int argc, char *argv[])
             strncpy(url_base, buffer, sizeof(url_base) - 1);
             url_base[sizeof(url_base) - 1] = 0;
 
+            uint32_t slot = 0;
+            bool playgo_enabled = false;
+
             char *query = strchr(url_base, '?');
             if (query != nullptr)
             {
@@ -284,6 +287,18 @@ int main(int argc, char *argv[])
 
                 get_query_param(query, "content_id", content_id_buf, sizeof(content_id_buf));
                 get_query_param(query, "name", content_name, sizeof(content_name));
+
+                char slot_buf[16];
+                if (get_query_param(query, "slot", slot_buf, sizeof(slot_buf)) && slot_buf[0] != 0)
+                {
+                    slot = (uint32_t)strtoul(slot_buf, nullptr, 0);
+                }
+
+                char playgo_buf[8];
+                if (get_query_param(query, "playgo", playgo_buf, sizeof(playgo_buf)) && playgo_buf[0] != 0)
+                {
+                    playgo_enabled = (strcmp(playgo_buf, "1") == 0 || strcasecmp(playgo_buf, "true") == 0);
+                }
 
                 char icon_rel[BUF_SIZE];
                 icon_rel[0] = 0;
@@ -312,7 +327,13 @@ int main(int argc, char *argv[])
             }
             metainfo.content_name = content_name;
             metainfo.icon_url = icon_url_buf;
-            metainfo.is_playgo_enabled = false;
+            metainfo.slot = slot;
+            metainfo.is_playgo_enabled = playgo_enabled;
+
+            if (playgo_enabled)
+            {
+                klog_printf("ezRemote DPI: playgo=1 requested; patches for this app will be refused (0x80B2116A) until the PlayGo record is cleared\n");
+            }
 
             klog_printf("ezRemote DPI Installing: Name: %s, Content ID: %s\n",
                         content_name, content_id_buf[0] ? content_id_buf : "(none)");
