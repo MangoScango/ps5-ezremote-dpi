@@ -269,9 +269,11 @@ int main(int argc, char *argv[])
             static char content_id_buf[CONTENTID_SIZE];
             static char content_name[256];
             static char icon_url_buf[BUF_SIZE];
+            static char scenario_id_buf[PLAYGOSCENARIOID_SIZE];
             content_id_buf[0] = 0;
             content_name[0] = 0;
             icon_url_buf[0] = 0;
+            scenario_id_buf[0] = 0;
 
             strncpy(url_base, buffer, sizeof(url_base) - 1);
             url_base[sizeof(url_base) - 1] = 0;
@@ -285,6 +287,41 @@ int main(int argc, char *argv[])
                 get_query_param(query, "content_id", content_id_buf, sizeof(content_id_buf));
                 get_query_param(query, "name", content_name, sizeof(content_name));
 
+                char slot_buf[16];
+                if (get_query_param(query, "slot", slot_buf, sizeof(slot_buf)) && slot_buf[0] != 0)
+                {
+                    slot = (uint32_t)strtoul(slot_buf, nullptr, 0);
+                }
+
+                char playgo_buf[8];
+                if (get_query_param(query, "playgo", playgo_buf, sizeof(playgo_buf)) && playgo_buf[0] != 0)
+                {
+                    playgo_enabled = (strcmp(playgo_buf, "1") == 0 || strcasecmp(playgo_buf, "true") == 0);
+                }
+
+                // Which PlayGo scenario to install first (index into the
+                // package's scenario table). playgo_scenario_id_t is only
+                // PLAYGOSCENARIOID_SIZE bytes, so accept at most 2 digits.
+                char scenario_buf[16];
+                if (get_query_param(query, "scenario_id", scenario_buf, sizeof(scenario_buf)) && scenario_buf[0] != 0)
+                {
+                    size_t len = strlen(scenario_buf);
+                    bool digits = len > 0 && len < PLAYGOSCENARIOID_SIZE;
+                    for (size_t i = 0; digits && i < len; i++)
+                    {
+                        digits = isdigit((unsigned char)scenario_buf[i]) != 0;
+                    }
+                    if (digits)
+                    {
+                        strncpy(scenario_id_buf, scenario_buf, sizeof(scenario_id_buf) - 1);
+                        scenario_id_buf[sizeof(scenario_id_buf) - 1] = 0;
+                    }
+                    else
+                    {
+                        klog_printf("ezRemote DPI: ignoring malformed scenario_id '%s'\n", scenario_buf);
+                    }
+                }
+
                 char icon_rel[BUF_SIZE];
                 icon_rel[0] = 0;
                 if (get_query_param(query, "icon", icon_rel, sizeof(icon_rel)) && icon_rel[0] != 0)
@@ -295,7 +332,7 @@ int main(int argc, char *argv[])
 
             metainfo.uri = url_base;
             metainfo.ex_uri = "";
-            metainfo.playgo_scenario_id = "";
+            metainfo.playgo_scenario_id = scenario_id_buf;
             metainfo.content_id = content_id_buf;
 
             if (content_name[0] == 0)
@@ -316,6 +353,10 @@ int main(int argc, char *argv[])
 
             klog_printf("ezRemote DPI Installing: Name: %s, Content ID: %s\n",
                         content_name, content_id_buf[0] ? content_id_buf : "(none)");
+            if (scenario_id_buf[0] != 0)
+            {
+                klog_printf("ezRemote DPI: installing scenario %s first\n", scenario_id_buf);
+            }
 
             ret = sceAppInstUtilInstallByPackage(&metainfo, &pkg_info, &playgo_info);
             if (ret != 0)
